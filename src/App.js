@@ -7,10 +7,26 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import StockDetails from "./component/StockDetail";
 
 const stockData = [
-  { stockName: "Bharti Airtel", stockPrice: "799" },
-  { stockName: "BhaAirtel", stockPrice: "7900" },
-  { stockName: "Bh Airtel", stockPrice: "79" },
-  { stockName: "Bharti ", stockPrice: "99" },
+  {
+    id: 1,
+    stockName: "Google",
+    stockPrice: "$100",
+  },
+  {
+    id: 2,
+    stockName: "Amazon",
+    stockPrice: "$999",
+  },
+  {
+    id: 3,
+    stockName: "Bajaj",
+    stockPrice: "$123",
+  },
+  {
+    id: 4,
+    stockName: "Microsoft",
+    stockPrice: "$545",
+  },
   // Add more stock data objects as needed
 ];
 
@@ -22,7 +38,11 @@ const App = () => {
         <div className="flex flex-col items-center mt-10">
           <Routes>
             {/* Pass stockData as a prop inside the Route */}
-            <Route exact path="/" element={<HomePage stockData={stockData} />} />
+            <Route
+              exact
+              path="/"
+              element={<HomePage stockData={stockData} />}
+            />
             <Route path="/stockdetails/:stockName" element={<StockDetails />} />
           </Routes>
         </div>
