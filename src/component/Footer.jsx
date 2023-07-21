@@ -8,15 +8,16 @@ const Footer = () => {
         <p>
           <a
             target="_blank"
-            href="https://github.com/HackRx-4-0/Stock_Frontend" rel="noreferrer"
+            href="https://github.com/HackRx-4-0/Stock_Frontend"
+            rel="noreferrer"
           >
             <i class="fa fa-github"></i>
           </a>
           <a
-            href="https://github.com/your-github-username"
+            href="https://github.com/HackRx-4-0/Stock_Frontend"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-white hover:underline"
+            className="text-white"
           >
             GitHub
           </a>
