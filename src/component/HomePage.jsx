@@ -1,31 +1,6 @@
 import React, { useState } from "react";
 import { RiSearchEyeLine } from "react-icons/ri";
 import StockData from "./StockData";
-// import { Link } from "react-router-dom";
-
-const cardsData = [
-  {
-    id: 1,
-    title: "Google",
-    content: "Content",
-  },
-  {
-    id: 2,
-    title: "Amazon",
-    content: "Content",
-  },
-  {
-    id: 3,
-    title: "Bajaj",
-    content: "Content",
-  },
-  {
-    id: 4,
-    title: "Microsoft",
-    content: "Content",
-  },
-  // Add more cards as needed
-];
 
 const HomePage = ({ stockData }) => {
   const [selectedCards, setSelectedCards] = useState([]);
@@ -35,21 +10,26 @@ const HomePage = ({ stockData }) => {
     setSubmitted(true);
   };
 
-  const toggleCardSelection = (cardId) => {
+  const toggleCardSelection = (stockName) => {
+    setSubmitted(false); // Reset the submitted state to false
     setSelectedCards((prevSelected) => {
-      if (prevSelected.includes(cardId)) {
-        // Card is already selected, unselect it
-        return prevSelected.filter((id) => id !== cardId);
+      if (prevSelected.includes(stockName)) {
+        // Stock is already selected, unselect it
+        return prevSelected.filter((name) => name !== stockName);
       } else {
-        // Card is not selected, select it
-        return [...prevSelected, cardId];
+        // Stock is not selected, select it
+        return [...prevSelected, stockName];
       }
     });
   };
 
-  const isCardSelected = (cardId) => selectedCards.includes(cardId);
-  const filteredCards = cardsData.filter((card) =>
-    card.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const isCardSelected = (stockName) => selectedCards.includes(stockName);
+  const filteredStocks = stockData.filter((stock) =>
+    stock.stockName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const selectedStocks = stockData.filter((stock) =>
+    selectedCards.includes(stock.stockName)
   );
 
   return (
@@ -57,26 +37,27 @@ const HomePage = ({ stockData }) => {
       <div className="mb-8 flex items-center">
         <input
           type="text"
-          className="px-4 py-2 border text-sm rounded-l-md"
+          className="px-4 py-3 border text-sm rounded-l-md h-full" // Add h-full class here
           placeholder="Search for Stock"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <RiSearchEyeLine
-          className="bg-white px-4 py-5 rounded-r-md"
-          size="1.5rem"
-        />
+        <div className="bg-white px-2 py-2.5 hover:cursor-pointer rounded-r-md h-full">
+          <RiSearchEyeLine size="1.5rem" />
+        </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
-        {filteredCards.map((card) => (
+        {filteredStocks.map((stock) => (
           <div
-            key={card.id}
+            key={stock.stockName}
             className={`bg-white p-4 shadow rounded-md transition duration-300 ${
-              isCardSelected(card.id) ? "border-2 border-black" : "border"
+              isCardSelected(stock.stockName)
+                ? "border-2 border-black"
+                : "border"
             }`}
-            onClick={() => toggleCardSelection(card.id)}
+            onClick={() => toggleCardSelection(stock.stockName)}
           >
-            {isCardSelected(card.id) && (
+            {isCardSelected(stock.stockName) && (
               <div className="absolute">
                 <svg
                   className="w-4 h-4 mr-2 text-blue-500"
@@ -94,8 +75,8 @@ const HomePage = ({ stockData }) => {
                 </svg>
               </div>
             )}
-            <h2 className="text-xl font-bold mb-2">{card.title}</h2>
-            <p>{card.content}</p>
+            <h2 className="text-xl font-bold mb-2">{stock.stockName}</h2>
+            <p>{stock.stockPrice}</p>
           </div>
         ))}
       </div>
@@ -108,7 +89,7 @@ const HomePage = ({ stockData }) => {
         </button>
         {submitted && (
           <div>
-            {stockData.map((stock, index) => (
+            {selectedStocks.map((stock, index) => (
               <StockData
                 key={index}
                 stockName={stock.stockName}
