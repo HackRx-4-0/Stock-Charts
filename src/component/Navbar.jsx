@@ -8,7 +8,7 @@ const MyComponent = () => {
         <ul className="flex space-x-4">
           <li>
             <a
-              href="asdf"
+              href="./"
               className="text-white hover:bg-gray-700 px-3 py-2 rounded"
             >
               Home
@@ -16,7 +16,7 @@ const MyComponent = () => {
           </li>
           <li>
             <a
-              href="asdf"
+              href="./"
               className="text-white hover:bg-gray-700 px-3 py-2 rounded"
             >
               About
@@ -24,7 +24,7 @@ const MyComponent = () => {
           </li>
           <li>
             <a
-              href="afdsa"
+              href="./"
               className="text-white hover:bg-gray-700 px-3 py-2 rounded"
             >
               Services
@@ -32,7 +32,7 @@ const MyComponent = () => {
           </li>
           <li>
             <a
-              href="adkfj"
+              href="./"
               className="text-white hover:bg-gray-700 px-3 py-2 rounded"
             >
               Contact
