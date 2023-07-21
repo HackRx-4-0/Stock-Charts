@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { RiSearchEyeLine } from "react-icons/ri";
+import StockData from "./StockData";
+// import { Link } from "react-router-dom";
 
 const cardsData = [
   {
@@ -24,9 +27,13 @@ const cardsData = [
   // Add more cards as needed
 ];
 
-const HomePage = () => {
+const HomePage = ({ stockData }) => {
   const [selectedCards, setSelectedCards] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const handleSubmit = () => {
+    setSubmitted(true);
+  };
 
   const toggleCardSelection = (cardId) => {
     setSelectedCards((prevSelected) => {
@@ -47,13 +54,17 @@ const HomePage = () => {
 
   return (
     <div className="container mx-auto py-8 px-20">
-      <div className="mb-8">
+      <div className="mb-8 flex items-center">
         <input
           type="text"
-          className="px-4 py-2 rounded border"
+          className="px-4 py-2 border text-sm rounded-l-md"
           placeholder="Search for Stock"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <RiSearchEyeLine
+          className="bg-white px-4 py-5 rounded-r-md"
+          size="1.5rem"
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
@@ -90,11 +101,22 @@ const HomePage = () => {
       </div>
       <div className="mt-8">
         <button
-          className="bg-gray-300 px-4 py-2 rounded border-2 font-semibold border-[#050713] hover:bg-[#050713] hover:text-white"
-          onClick={() => console.log("Selected Cards:", selectedCards)}
+          className="bg-gray-300 px-4 my-2 py-2 rounded border-2 font-semibold border-[#050713] hover:bg-[#050713] hover:text-white"
+          onClick={handleSubmit}
         >
           Submit
         </button>
+        {submitted && (
+          <div>
+            {stockData.map((stock, index) => (
+              <StockData
+                key={index}
+                stockName={stock.stockName}
+                stockPrice={stock.stockPrice}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

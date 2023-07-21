@@ -13,6 +13,31 @@
   }
 }
 
+/* App.css */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto Slab', serif; /* Assuming you have imported the font */
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Add this CSS to push the footer to the bottom */
+.App {
+  flex: 1;
+}
+
+/* Add this CSS to style the content area (between Navbar and Footer) */
+.flex-col {
+  flex: 1;
+}
+
+/* Add other styling for Navbar, Footer, and other elements as needed */
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
