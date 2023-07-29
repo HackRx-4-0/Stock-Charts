@@ -46,11 +46,11 @@ const HomePage = ({ stockData }) => {
           <RiSearchEyeLine size="1.5rem" />
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
         {filteredStocks.map((stock) => (
           <div
             key={stock.stockName}
-            className={`bg-white p-4 shadow rounded-md transition duration-300 ${
+            className={`bg-white py-10 shadow rounded-md transition duration-300 ${
               isCardSelected(stock.stockName)
                 ? "border-2 border-black"
                 : "border"
