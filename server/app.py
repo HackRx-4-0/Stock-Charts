@@ -6,18 +6,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.dates as mdates
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, storage
+import time
 
 cred = credentials.Certificate("./stocks_credentials.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+firebase_admin.initialize_app(cred, {"storageBucket": "chartimages-e5374.appspot.com"})
 
 API_BASE_URL = "https://www.alphavantage.co"  # Replace with the actual Alpha Vantage API base URL
 API_KEY = "0feed937a9mshe685dc54667806ep130cabjsn1845a10af151"  # Replace with your Alpha Vantage API key
 
 
 def fetch_historical_data(symbol):
-    # Fetch historical stock data for t-3 months from the API
     endpoint = f"{API_BASE_URL}/query"
     params = {
         "symbol": symbol,
@@ -68,18 +67,18 @@ def generate_chart(symbol):
         plt.legend()
         plt.savefig(filepath)
         plt.close()
-        
+
         return filepath  # Return the filepath for later uploading
 
 
-def upload_chart(filepath, symbol):
-    # Upload the image to Firestore
-    with open(filepath, 'rb') as image_file:
-        image_data = image_file.read()
+def upload_chart_to_firestore(filepath, symbol):
+    bucket = storage.bucket()
+    remote_filepath = f"images/{symbol}_chart.png"
 
-    image_ref = db.collection('charts').document(f"{symbol}_chart")
-    image_ref.set({'image': image_data})
-    print(f"Chart for {symbol} uploaded successfully!")
+    blob = bucket.blob(remote_filepath)
+    blob.upload_from_filename(filepath)
+
+    print(f"Chart for {symbol} uploaded to Firebase Storage!")
 
 
 if __name__ == '__main__':
@@ -95,16 +94,26 @@ if __name__ == '__main__':
         'ADI', 'ADP', 'ABEV', 'AAXN', 'AAL', 'A', 'AAP', 'AMD', 'ALB', 'AIV', 'AIG',
         'ABB', 'ABBV', 'ABMD', 'AAPL', 'AMAT', 'APTV', 'ADM', 'ADSK', 'ADP', 'AZO',
     ]
-
-    # Set the default style for seaborn
     sns.set()
 
     if not os.path.exists('charts'):
         os.makedirs('charts')
 
     for symbol in symbols:
-        filepath = generate_chart(symbol)
-        if filepath is not None:
-            upload_chart(filepath, symbol)
+        retries = 0
+        max_retries = 3
 
-    print("Chart generation and upload to Firestore complete!")
+        while retries < max_retries:
+            filepath = generate_chart(symbol)
+            if filepath is not None:
+                upload_chart_to_firestore(filepath, symbol)
+                break  # Break the retry loop if successful
+            else:
+                retries += 1
+                print(f"Retrying {symbol} ({retries}/{max_retries})...")
+                time.sleep(1)  # Add a small delay before retrying
+
+        if retries == max_retries:
+            print(f"Could not generate and upload chart for {symbol} after {max_retries} retries.")
+
+    print("Chart generation and upload to Firebase Storage complete!")
