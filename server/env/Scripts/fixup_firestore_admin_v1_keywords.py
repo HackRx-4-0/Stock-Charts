@@ -1,4 +1,4 @@
-#!C:\Users\hp\Desktop\PS4-Deep_Bug_Divers\server\env\Scripts\python.exe
+#!D:\HackRx4.0\Stock_charts\server\env\Scripts\python.exe
 # -*- coding: utf-8 -*-
 # Copyright 2022 Google LLC
 #
