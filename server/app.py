@@ -1,122 +1,119 @@
-import matplotlib
-matplotlib.use("Agg")  # Set non-interactive backend before importing pyplot
-
-from flask import Flask
-import requests
-import pandas as pd
-import matplotlib.pyplot as plt
 import os
-from datetime import datetime, timedelta
+import requests
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib.dates as mdates
+import firebase_admin
+from firebase_admin import credentials, storage
 import time
+#firebase
+cred = credentials.Certificate("./stocks_credentials.json")
+firebase_admin.initialize_app(cred, {"storageBucket": "chartimages-e5374.appspot.com"})
 
-app = Flask(__name__)
+API_BASE_URL = "https://www.alphavantage.co"  # Replace with the actual Alpha Vantage API base URL
+API_KEY = "0feed937a9mshe685dc54667806ep130cabjsn1845a10af151"  # Replace with your Alpha Vantage API key
 
-# Function to fetch data from the API
-def fetch_data_from_api():
-    url = "https://script.google.com/macros/s/AKfycbyIMkGzove1qxt1ogqdfeRenKmvIuLdEWFO7m5kWkEbpwJGFlhapGHgd7EDPwZObsJnwA/exec"
+
+def fetch_historical_data(symbol):
+    endpoint = f"{API_BASE_URL}/query"
+    params = {
+        "symbol": symbol,
+        "function": "TIME_SERIES_MONTHLY",
+        "apikey": API_KEY
+    }
     try:
-        response = requests.get(url)
-        response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
-        data = response.json()["data"]
-        return data
-    except requests.exceptions.HTTPError as http_err:
-        print(f"HTTP error occurred: {http_err}")
-    except requests.exceptions.RequestException as req_err:
-        print(f"Request error occurred: {req_err}")
-    except ValueError as json_err:
-        print(f"JSON decode error occurred: {json_err}")
-    return None
+        response = requests.get(endpoint, params=params)
+        response.raise_for_status()  # Raises an exception for non-200 status codes
+        data = response.json()
+        time_series_monthly = data.get('Monthly Time Series')
 
-# Function to create the "charts" directory if it doesn't exist
-def create_charts_directory():
-    if not os.path.exists("charts"):
-        os.makedirs("charts")
-    if not os.path.exists("charts/one"):
-        os.makedirs("charts/one")
+        if time_series_monthly is None:
+            print(f"No historical data found for {symbol}.")
+            return None
 
-# Function to convert regular datetime to UTC datetime
-def convert_to_utc(dt):
-    return pd.Timestamp(dt).tz_localize("UTC")
+        # Extract date and closing price from the API response
+        dates = list(time_series_monthly.keys())
+        prices = [float(entry['4. close']) for entry in time_series_monthly.values()]
 
-# Function to generate and save line chart locally for each stock for one month
-def generate_and_save_line_chart_one_month(symbol, stock_data, one_month_ago_utc):
-    # Filter data for the last 1 month
-    df_one_month = stock_data[stock_data["Date"] >= one_month_ago_utc]
+        return dates, prices
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data for {symbol}: {e}")
+        return None
 
-    # Generate a line chart for 1 month
-    plt.figure(figsize=(12, 6))
-    plt.title(f"{symbol} - Last 1 Month")
-    plt.xlabel("Date")
-    plt.ylabel("Closing Price")
-    plt.grid(True)
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.plot(df_one_month["Date"], df_one_month["Close"], color="green")
 
-    # Save the chart locally for 1 month
-    chart_path = f"charts/one/{symbol}.png"
-    plt.savefig(chart_path)
-    plt.close()
+def generate_chart(symbol):
+    data = fetch_historical_data(symbol)
+    if data is not None:
+        dates, prices = data
 
-# Function to generate and save line charts locally for each stock for three months
-def generate_and_save_line_charts(data):
-    stocks_data = {}
-    for item in data[1:]:  # Skip the first entry, which contains column names
-        symbol = item["symbol"]
-        trade_date = item["trade-date"]
-        close_price = float(item["close"])
-        if symbol not in stocks_data:
-            stocks_data[symbol] = []
-        stocks_data[symbol].append((trade_date, close_price))
+        # Determine the color based on price change
+        if prices[0] < prices[-1]:
+            color = 'g'  # Green for increasing prices
+        else:
+            color = 'r'  # Red for decreasing prices
 
-    # Generate and save line charts for each stock for three months
-    create_charts_directory()
-    for symbol, stock_data in stocks_data.items():
-        df = pd.DataFrame(stock_data, columns=["Date", "Close"])
-        df["Date"] = pd.to_datetime(df["Date"])
-        df.sort_values(by="Date", inplace=True)
-
-        # Get the date for 3 months ago
-        three_months_ago = datetime.now() - timedelta(days=90)
-        # Get the date for 1 month ago
-        one_month_ago = datetime.now() - timedelta(days=30)
-
-        three_months_ago_utc = convert_to_utc(three_months_ago)
-        df = df[df["Date"] >= three_months_ago_utc]
-
-        # Generate a line chart for three months
-        plt.figure(figsize=(12, 6))
-        plt.title(f"{symbol} - Last 3 Months")
-        plt.xlabel("Date")
-        plt.ylabel("Closing Price")
-        plt.grid(True)
+        # Create and save the chart with the same filename
+        filepath = f"charts/{symbol}_chart.png"
+        plt.figure(figsize=(10, 6))
+        ax = sns.lineplot(x=dates, y=prices, label=symbol, color=color)
+        ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))  # Show major ticks for each month
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))  # Format date as YYYY-MM
+        plt.xlabel('Date')
+        plt.ylabel('Closing Price')
+        plt.title(f"{symbol} Stock Price Chart (T-3 months)")
         plt.xticks(rotation=45)
-        plt.tight_layout()
-        plt.plot(df["Date"], df["Close"], color="blue")
-
-        # Save the chart locally for three months
-        chart_path = f"charts/three/{symbol}.png"
-        plt.savefig(chart_path)
+        plt.legend()
+        plt.savefig(filepath)
         plt.close()
 
-        # Generate and save line chart for one month
-        generate_and_save_line_chart_one_month(symbol, df, convert_to_utc(one_month_ago))
+        return filepath  # Return the filepath for later uploading
 
-@app.route("/")
-def index():
-    start_time = time.time()  # Record the start time
 
-    # Fetch data from the API
-    data = fetch_data_from_api()
+def upload_chart_to_firestore(filepath, symbol):
+    bucket = storage.bucket()
+    remote_filepath = f"images/{symbol}_chart.png"
 
-    # Generate and save line charts for each stock for the last 3 months
-    generate_and_save_line_charts(data)
+    blob = bucket.blob(remote_filepath)
+    blob.upload_from_filename(filepath)
 
-    end_time = time.time()  # Record the end time
+    print(f"Chart for {symbol} uploaded to Firebase Storage!")
 
-    time_taken = end_time - start_time
 
-    return f"Line charts generated and saved locally!<br>Time taken: {time_taken:.2f} seconds"
+if __name__ == '__main__':
+    symbols = [
+        'AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'FB', 'NVDA', 'JPM', 'JNJ', 'V',
+        'PYPL', 'UNH', 'MA', 'BAC', 'ADBE', 'CMCSA', 'XOM', 'INTC', 'VZ', 'NFLX',
+        'KO', 'CSCO', 'PEP', 'T', 'CRM', 'PFE', 'DIS', 'ABT', 'ABBV', 'NKE', 'BMY',
+        'NVZMY', 'TSM', 'TMUS', 'ACN', 'NVS', 'BABA', 'AMGN', 'ASML', 'AVGO', 'COST',
+        'CVX', 'DEO', 'DHR', 'EL', 'NEE', 'PYPL', 'QCOM', 'TM', 'UNP', 'UPS', 'SNY',
+        'SAP', 'SBUX', 'NVO', 'MDT', 'LIN', 'LMT', 'LLY', 'HSBC', 'HON', 'GOOG',
+        'GL', 'GIS', 'GE', 'FCAU', 'FDX', 'EXC', 'ENB', 'ECL', 'DUK', 'DOV', 'D',
+        'COP', 'CCEP', 'CCL', 'BSX', 'BLK', 'BHP', 'BDX', 'AXP', 'APD', 'ANTM',
+        'ADI', 'ADP', 'ABEV', 'AAXN', 'AAL', 'A', 'AAP', 'AMD', 'ALB', 'AIV', 'AIG',
+        'ABB', 'ABBV', 'ABMD', 'AAPL', 'AMAT', 'APTV', 'ADM', 'ADSK', 'ADP', 'AZO',
+    ]
+    sns.set()
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    if not os.path.exists('charts'):
+        os.makedirs('charts')
+
+    for symbol in symbols:
+        retries = 0
+        max_retries = 3
+
+        while retries < max_retries:
+            filepath = generate_chart(symbol)
+            if filepath is not None:
+                upload_chart_to_firestore(filepath, symbol)
+                break  # Break the retry loop if successful
+            else:
+                retries += 1
+                print(f"Retrying {symbol} ({retries}/{max_retries})...")
+                time.sleep(1)  # Add a small delay before retrying
+
+        if retries == max_retries:
+            print(f"Could not generate and upload chart for {symbol} after {max_retries} retries.")
+
+    print("Chart generation and upload to Firebase Storage complete!")
