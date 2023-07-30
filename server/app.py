@@ -8,7 +8,7 @@ import matplotlib.dates as mdates
 import firebase_admin
 from firebase_admin import credentials, storage
 import time
-
+#firebase
 cred = credentials.Certificate("./stocks_credentials.json")
 firebase_admin.initialize_app(cred, {"storageBucket": "chartimages-e5374.appspot.com"})
 
