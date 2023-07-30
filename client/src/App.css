@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  background: radial-gradient(#004e92, #2193b0);
 }
 
 .App-logo {
@@ -39,7 +40,6 @@ body {
 /* Add other styling for Navbar, Footer, and other elements as needed */
 
 .App-header {
-  background-color: #282c34;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
