@@ -6,7 +6,7 @@ import { ref, getDownloadURL } from "firebase/storage";
 const StockDetails = () => {
   const [stockImagePath, setStockImagePath] = useState("");
   useEffect(() => {
-    const starsRef = ref(storage, "images/AAPL_chart.png");
+    const starsRef = ref(storage, 'images/AAPL_chart.png');
     getDownloadURL(starsRef)
       .then((url) => {
         // Insert url into an <img> tag to "download"

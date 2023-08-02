@@ -6,6 +6,9 @@ import { getStorage } from 'firebase/storage';
 
 // Your web app's Firebase configuration
 
+
+  
+
 const firebaseConfig = JSON.parse(process.env.REACT_APP_FIREBASE_CONFIG);
 
 // Initialize Firebase
