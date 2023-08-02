@@ -50,7 +50,7 @@ const HomePage = ({ stockData }) => {
         {filteredStocks.map((stock) => (
           <div
             key={stock.stockName}
-            className={`bg-white py-10 shadow justify-start rounded-md transition duration-300 ${
+            className={`bg-white h-64 shadow justify-start rounded-md transition duration-300 ${
               isCardSelected(stock.stockName)
                 ? "border-2 border-black"
                 : "border"
@@ -60,7 +60,7 @@ const HomePage = ({ stockData }) => {
             {isCardSelected(stock.stockName) && (
               <div className="absolute">
                 <svg
-                  className="w-4 h-4 mr-2 text-blue-500"
+                  className="w-7 h-7 mx-2 mt-2 text-blue-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -69,14 +69,16 @@ const HomePage = ({ stockData }) => {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth="5"
+                    strokeWidth="4"
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
               </div>
             )}
-            <h2 className="text-xl font-bold mb-2">{stock.stockName}</h2>
-            <p>{stock.stockPrice}</p>
+            <div className="flex justify-between px-10 mt-2">
+              <h2 className="text-xl font-bold mb-2">{stock.stockName}</h2>
+              <p>{stock.stockPrice}</p>
+            </div>
           </div>
         ))}
       </div>
