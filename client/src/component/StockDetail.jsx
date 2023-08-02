@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { storage } from '../Firebase';
-import { ref, getDownloadURL } from 'firebase/storage';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { storage } from "../Firebase";
+import { ref, getDownloadURL } from "firebase/storage";
 
 const StockDetails = () => {
-  const [stockImagePath, setStockImagePath] = useState('');
+  const [stockImagePath, setStockImagePath] = useState("");
   useEffect(() => {
     const starsRef = ref(storage, 'images/AAPL_chart.png');
     getDownloadURL(starsRef)
@@ -16,23 +16,23 @@ const StockDetails = () => {
         // A full list of error codes is available at
         // https://firebase.google.com/docs/storage/web/handle-errors
         switch (error.code) {
-          case 'storage/object-not-found':
+          case "storage/object-not-found":
             // File doesn't exist
             break;
-          case 'storage/unauthorized':
+          case "storage/unauthorized":
             // User doesn't have permission to access the object
             break;
-          case 'storage/canceled':
+          case "storage/canceled":
             // User canceled the upload
             break;
 
           // ...
 
-          case 'storage/unknown':
+          case "storage/unknown":
             // Unknown error occurred, inspect the server response
             break;
           default:
-            console.log('default');
+            console.log("default");
             break;
         }
       });
