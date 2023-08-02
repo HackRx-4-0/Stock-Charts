@@ -15,7 +15,7 @@ const MyComponent = () => {
               href="/"
               className="text-white hover:bg-gray-700 px-3 py-2 rounded"
             >
-              About
+              Stats
             </a>
           </li>
           <li>
@@ -23,15 +23,7 @@ const MyComponent = () => {
               href="/"
               className="text-white hover:bg-gray-700 px-3 py-2 rounded"
             >
-              Services
-            </a>
-          </li>
-          <li>
-            <a
-              href="/"
-              className="text-white hover:bg-gray-700 px-3 py-2 rounded"
-            >
-              Contact
+              News
             </a>
           </li>
         </ul>
